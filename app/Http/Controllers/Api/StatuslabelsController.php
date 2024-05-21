@@ -132,7 +132,7 @@ class StatuslabelsController extends Controller
     {
         $this->authorize('update', Statuslabel::class);
         $statuslabel = Statuslabel::findOrFail($id);
-        
+
         $request->except('deployable', 'pending', 'archived');
 
 
@@ -332,5 +332,104 @@ class StatuslabelsController extends Controller
         }
 
         return (new SelectlistTransformer)->transformSelectlist($statuslabels);
+    }
+
+    public function getTailoredData()
+    {
+        $this->authorize('view', Statuslabel::class);
+
+        $noWhere = "No Where";
+
+        $noWhereLocation = \App\Models\Location::where('name', $noWhere)->first();
+        if(!$noWhereLocation) {
+            $noWhereLocation = \App\Models\Location::create(['name' => 'NO WHERE']);
+        }
+
+        $nullLocationAssets = Asset::whereNull('location_id')->get();
+        if($nullLocationAssets->isNotEmpty()) {
+            Asset::whereNull('location_id')->update(['location_id' => $noWhereLocation->id]);
+        }
+
+        $assets = Asset::with(['assetstatus', 'location', 'model', 'model.category'])->orderBy('id', 'asc')->get();
+        $modelNames =    $assets->groupBy('model.name')->keys()->all();
+        $locationNames = $assets->groupBy('location.name')->keys()->all();
+        $categoryNames = $assets->groupBy('model.category.name')->keys()->all();
+        $assetPurchasesByDate = Asset::select(\DB::raw('DATE(purchase_date) as date'), \DB::raw('count(*) as count'))
+                                     ->where('purchase_date', '>=', \Carbon::now()->subMonths(3))
+                                     ->groupBy('date')->orderBy('date', 'asc')->get();
+
+        $assetsByModel = $assets->groupBy('model.name')->map(function ($assets) {
+            return [
+                'count' => $assets->count(),
+                'locations' => $assets->groupBy('location.name')->map(function ($assetByLocation) {
+                    return [
+                        'count' => $assetByLocation->count(),
+                        'status' => $assetByLocation->groupBy('assetstatus.name')->map(function ($assetByStatus) {
+                            return $assetByStatus->count();
+                        }),
+
+                    ];
+                }),
+            ];
+        });
+
+        $assetsByLocation = $assets->groupBy('location.name')->map(function ($assets) {
+            return [
+                'count' => $assets->count(),
+                'status' => $assets->groupBy('assetstatus.name')->map(function ($assetByStatus) { return $assetByStatus->count(); }),
+                'model_names' => $assets->groupBy('model.name')->keys()->all(),
+                'category_names' =>$assets->groupBy('model.category.name')->keys()->all(),
+                'models' => $assets->groupBy('model.name')->map(function ($assetByModel) {
+                    return [
+                        'count' => $assetByModel->count(),
+                        'status' => $assetByModel->groupBy('assetstatus.name')->map(function ($assetByStatus) {
+                            return $assetByStatus->count();
+                        }),
+                    ];
+                }),
+                'categories' => $assets->groupBy('model.category.name')->map(function ($assetByModelCategory) {
+                    return [
+                        'count' => $assetByModelCategory->count(),
+                        'status' => $assetByModelCategory->groupBy('assetstatus.name')->map(function ($assetByStatus) {
+                            return $assetByStatus->count();
+                        }),
+                    ];
+                }),
+            ];
+        });
+
+        // if(isset($assetsByLocation[""])) {
+        //     $assetsByLocation['Unknown'] = $assetsByLocation[""];
+        //     unset($assetsByLocation[""]);
+        // }
+
+        // $assetsByStatus = $assets->groupBy('assetstatus.name')->map(function ($assets) {
+        //     return [
+        //         'count' => $assets->count(),
+        //         'location_names' => $assets->groupBy('location.name')->keys()->all(),
+        //         'locations' => $assets->groupBy('location.name')->map(function ($assetByLocation) {
+        //             return [
+        //                 'count' => $assetByLocation->count(),
+        //                 'status' => $assetByLocation->groupBy('model.name')->map(function ($assetByModel) {
+        //                     return [
+        //                         'count' => $assetByModel->count(),
+        //                         // 'models' => $assetByModel->all(),
+        //                     ];
+        //                 }),
+
+        //             ];
+        //         }),
+        //     ];
+        // });
+
+        return [
+            'model_names' => $modelNames,
+            'location_names' => $locationNames,
+            'category_names' => $categoryNames,
+            'assets_by_model' => $assetsByModel->toArray(),
+            'assets_by_location' => $assetsByLocation->toArray(),
+            'assets_by_purchase_date' => $assetPurchasesByDate->toArray(),
+            // 'assets_by_status' => $assetsByStatus->toArray(),
+        ];
     }
 }

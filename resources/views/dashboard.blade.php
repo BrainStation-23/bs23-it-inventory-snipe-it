@@ -276,7 +276,7 @@
     <div class="col-md-6">
 
 		@if ($snipeSettings->full_multiple_companies_support=='1')
-			 <!-- Companies -->	
+			 <!-- Companies -->
 			<div class="box box-default">
 				<div class="box-header with-border">
 					<h2 class="box-title">{{ trans('general.companies') }}</h2>
@@ -342,7 +342,7 @@
 
 				</div><!-- /.box-body -->
 			</div> <!-- /.box -->
-		
+
 		@else
 			 <!-- Locations -->
 			 <div class="box box-default">
@@ -374,21 +374,21 @@
 								<thead>
 								<tr>
 									<th class="col-sm-3" data-visible="true" data-field="name" data-formatter="locationsLinkFormatter" data-sortable="true">{{ trans('general.name') }}</th>
-									
+
 									<th class="col-sm-1" data-visible="true" data-field="assets_count" data-sortable="true">
 										<i class="fas fa-barcode" aria-hidden="true"></i>
 										<span class="sr-only">{{ trans('general.asset_count') }}</span>
 									</th>
 									<th class="col-sm-1" data-visible="true" data-field="assigned_assets_count" data-sortable="true">
-										
+
 										{{ trans('general.assigned') }}
 									</th>
 									<th class="col-sm-1" data-visible="true" data-field="users_count" data-sortable="true">
 										<i class="fas fa-users" aria-hidden="true"></i>
 										<span class="sr-only">{{ trans('general.people') }}</span>
-										
+
 									</th>
-									
+
 								</tr>
 								</thead>
 							</table>
@@ -403,7 +403,7 @@
 			</div> <!-- /.box -->
 
 		@endif
-			
+
     </div>
     <div class="col-md-6">
 
@@ -541,5 +541,514 @@
         if (current != last) location.reload();
         last = current;
     });
+</script>
+
+<script async nonce="{{ csrf_token() }} ">
+
+  generateTailoredContent();
+  fetchDataForTailoredContent();
+
+  function generateTailoredContent() {
+    const htmlContent = `
+      <div id="tailored">
+        <!-- Asets By Purchase Graph -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="box box-default">
+              <div class="box-header with-border">
+                <h2 class="box-title">Purchases in Last 3 months</h2>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse" aria-hidden="true">
+                    <i class="fas fa-minus" aria-hidden="true"></i>
+                    <span class="sr-only">{{trans('general.collapse')}}</span>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="chart-responsive">
+                      <canvas id="purchasesByDatesGraph" style="max-height:"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Asets By Models In Locations Graph -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="box box-default">
+              <div class="box-header with-border">
+                <h2 class="box-title">Assets By Models In Locations</h2>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse" aria-hidden="true">
+                    <i class="fas fa-minus" aria-hidden="true"></i>
+                    <span class="sr-only">{{trans('general.collapse')}}</span>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="chart-responsive">
+                      <canvas id="modelsInLocationsBarChart" style="height:"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Models & Location -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="box box-default">
+              <div class="box-header with-border">
+                <h2 class="box-title"> {{trans('general.asset_model')}} & {{trans('general.locations')}} </h2>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse" aria-hidden="true">
+                    <i class="fas fa-minus" aria-hidden="true"></i>
+                    <span class="sr-only">{{trans('general.collapse')}}</span>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body border-0">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="table-responsive border border-info">
+                      <table id="categoryStatusDataTable" class="table table-bordered table-sm table-hover" style="overflow-y: hidden">
+                        <thead class="table-primary">
+                          <tr>
+                            <th class="align-top" width="10%">Location</th>
+                            <th class="align-top" width="10%">Total</th>
+                            <!-- Dynamic category headers -->
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- Table body will be generated by jQuery DataTable -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Append the generated HTML to the content section after the first two divs
+    $('.content > #webui > div:nth-child(1)').after(htmlContent);
+  }
+
+  function fetchDataForTailoredContent() {
+    $.ajax({
+      type: 'GET',
+      dataType: 'json',
+      url: '{{ route('api.assets.custom.tailored') }}',
+      headers: { "X-Requested-With": 'XMLHttpRequest', "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')},
+      success: function (data) {
+        try { generateCategoryStatusDataTables("categoryStatusDataTable", data) }     catch (e) {console.log(e); console.log("generateCategoryStatusDataTables")}
+        try { generateModelsInLocationsBarChart("modelsInLocationsBarChart", data) }  catch (e) {console.log(e); console.log("generateModelsInLocationsBarChart")}
+        try { generatePurchasesByDatesGraph('purchasesByDatesGraph', data) }          catch (e) {console.log(e); console.log("generatePurchasesByDatesGraph")}
+      },
+      error: function (data) {
+        // window.location.reload(true);
+      },
+    });
+  }
+
+  function generateCategoryStatusDataTables(id, data) {
+    let categories = data.category_names;
+
+    // Generate table headers for categories
+    categories.forEach(function(category) {
+      $(`#${id} thead tr`).append('<th scope="col" width="4%" class="align-top">' + generateAcronym(category) + '</th>');
+    });
+
+    // Function to generate table rows
+    function generateRows(location, totalCount, overallStatus) {
+
+      let overallStatusArr = []
+      overallStatusArr = Object
+        .keys(overallStatus)
+        .map((key) =>
+        `<br>
+          <span>${key}: ${overallStatus[key]}</span>`
+        )
+
+      let row = '<tr>';
+      row +=      '<td class="text-bold">' + location + '</td>';
+      row +=      `<td>${totalCount == 0 ? '' : `Total: ${totalCount} ${overallStatusArr}`}</td>`;
+
+      // Generate cells for each category
+      categories.forEach(function(category) {
+          let categoryCount = 0;
+          let statusArr = []
+          let point = data.assets_by_location[location].categories[category]
+          if (point) {
+              categoryCount += point.count;
+              statusArr = Object
+                .keys(point?.status)
+                .map((key) =>
+                  `<br>
+                  <span>${generateAcronym(key)}: ${point?.status[key]}
+                  </span>`
+                )
+          }
+          row += `<td>${categoryCount == 0 ? '' : `Total: ${categoryCount} ${statusArr}`}</td>`;
+      });
+
+      row +=    '</tr>';
+      return row;
+    }
+
+    // Generate table rows
+    for (let location in data.assets_by_location) {
+      let locationData = data.assets_by_location[location];
+      let totalCount = locationData.count;
+      let overallStatus = locationData.status;
+      let row = generateRows(location, totalCount, overallStatus);
+      $(`#${id} tbody`).append(row);
+    }
+  }
+
+  function generateModelsInLocationsBarChart(id, data) {
+    let barChartCanvas = $(`#${id}`).get(0).getContext("2d");
+    let barChart = new Chart(barChartCanvas);
+    let ctx = document.getElementById(id);
+    let barOptions = (graphData => { return {
+      maintainAspectRatio: false,
+      aspectRatio: 0.5,
+      responsive: true,
+      layout: {
+        padding: {
+          top: 50,
+          bottom: 0,
+          left: 0,
+          right: 0
+        },
+      },
+      scales: {
+        xAxes: [{
+          display: true,
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Location'
+          }
+        }],
+        yAxes: [{
+          display: true,
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Asset Count'
+          },
+          ticks: {
+            // min: graphData.limits.min,
+            // max: graphData.limits.max,
+            stepSize: 50,
+          },
+          beforeBuildTicks: function(axis) {
+          }
+        }]
+      },
+      legend: {
+        display: false,
+        position: 'left',
+        responsive: true,
+        labels: {
+          generateLabels: function(chart) {
+            let data = chart.data;
+            if (Object.keys(data.modelsColors).length && data.datasets.length) {
+              return Object.keys(data.modelsColors).map(function(key) {
+                return {
+                  text: key,
+                  fillStyle: data.modelsColors[key] || '#000',
+                };
+              });
+            }
+            return [];
+          },
+          font: {
+            size: 1, // Reduce the font size
+          },
+          boxWidth: 10, // Reduce the box width
+        }
+      },
+      tooltips: {
+        callbacks: {
+          label: function(tooltipItem, data) {
+            let dataset = data.datasets[tooltipItem.datasetIndex];
+            let location = data.labels[tooltipItem.index];
+            let modelName = dataset.label;
+            let total = dataset.data[tooltipItem.index];
+            let status = dataset.status[location] // dataset.status[tooltipItem.index];
+            let statusArr = Object.keys(status).map((key) => ` ${key}: ${status[key]}`)
+
+            // console.log(location, modelName, total, status, tooltipItem.datasetIndex, data)
+
+            return `${modelName} - ${location}: ${total} -${statusArr}`;
+          }
+        }
+      }
+    }});
+
+    function buildDataset(data) {
+      let colorMap = {};
+      let models = data.model_names
+      let locations = data.location_names
+      let colors = generateColors(models.length)
+      models.forEach((model, index) => { colorMap[model] = colors[index];});
+
+      let datasets = models.map((model, index) => {
+        let extraDataObj = {};
+
+        if(data.assets_by_model[model] && data.assets_by_model[model].locations) {
+          Object.keys(data.assets_by_model[model].locations).forEach(location => {
+            let target = data?.assets_by_model[model]?.locations[location]
+            extraDataObj[location] = target
+          })
+        }
+
+        return {
+          label: model,
+          extraData: extraDataObj,
+          backgroundColor: colorMap[model],
+          stack: `Stack ${index}`
+        }
+      }).map((obj, index) => {
+        let statusArr = {};
+        return {
+          barPercentage: 0.7,
+          barAspectRation: 0.2,
+          label: obj.label,
+          data: locations.map(location => {
+            if(obj.extraData.hasOwnProperty(location)) {
+              let modelInLocation = obj.extraData[location]
+              statusArr[location] = {Total: modelInLocation.count, ...modelInLocation.status}
+              return modelInLocation.count
+            } else {
+              return 0
+            }
+          }),
+          status: statusArr,
+          backgroundColor: obj.backgroundColor,
+          stack: `Stack 0`
+        }
+      })
+
+      let max = datasets.reduce((acc, row) => {
+        let rowMax = Math.max(...row.data);
+        return Math.max(acc, rowMax);
+      }, Number.NEGATIVE_INFINITY);
+
+      let min = datasets.reduce((acc, row) => {
+        let rowMax = Math.min(...row.data);
+        return Math.min(acc, rowMax);
+      }, Number.POSITIVE_INFINITY);
+
+      let graphData = {
+        limits: { max, min },
+        labels: locations,
+        modelsColors: colorMap,
+        datasets: [...datasets]
+      }
+      // console.log(graphData);
+      return graphData
+    }
+
+    let graphData = buildDataset(data)
+    let myBarChart = new Chart(ctx,{
+      type   : 'bar',
+      data   : graphData,
+      options: barOptions(graphData)
+    });
+
+    let last = document.getElementById(id).clientWidth;
+    addEventListener('resize', function() {
+      let current = document.getElementById(id).clientWidth;
+      if (current != last) location.reload();
+      last = current;
+    });
+
+    /**
+     * Resizing Pie Chart matching the height of bar chart
+     */
+    // let divHeightPie = $('#statusPieChart').height();
+    // let divHeightBar = $('#statusStackedBarChart').height();
+    // $('#statusPieChart').css('margin-bottom', divHeightBar - divHeightPie);
+  }
+
+  function generatePurchasesByDatesGraph(id, data) {
+    let labels = data.assets_by_purchase_date.map(item => item.date);
+    let dataPoints = data.assets_by_purchase_date.map(item => item.count);
+
+    let ctx = document.getElementById(id).getContext('2d');
+    let purchasesChart = new Chart(ctx, {
+        type: 'line', // You can change this to 'bar' or 'line' or any other type
+        data: {
+            labels: labels, // Dates
+            datasets: [{
+                label: 'Number of Purchases',
+                data: dataPoints, // Number of purchases
+                fill: true,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            aspectRatio: 0.7,
+            scales: {
+                xAxes: {
+                    type: 'time',
+                    time: {
+                        unit: 'day'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                yAxes: [{
+                    ticks: {
+                      // stepSize: 10,
+                    },
+                    title: {
+                        display: true,
+                        text: 'Number of Purchases'
+                    }
+                }]
+            }
+        }
+    });
+  }
+
+  function generatePieChart(id) {
+    let pieChartCanvas = $(`#${id}`).get(0).getContext("2d");
+    let pieChart = new Chart(pieChartCanvas);
+    let ctx = document.getElementById(id);
+    let pieOptions = {
+            legend: {
+                position: 'top',
+                responsive: true,
+                maintainAspectRatio: true,
+            },
+            tooltips: {
+              callbacks: {
+                  label: function(tooltipItem, data) {
+                      counts = data.datasets[0].data;
+                      total = 0;
+                      for(let i in counts) {
+                          total += counts[i];
+                      }
+                      prefix = data.labels[tooltipItem.index] || '';
+                      return prefix+" "+Math.round(counts[tooltipItem.index]/total*100)+"%";
+                  }
+              }
+            }
+        };
+
+    $.ajax({
+        type: 'GET',
+        url: '{{ (\App\Models\Setting::getSettings()->dash_chart_type == 'name') ? route('api.statuslabels.assets.byname') : route('api.statuslabels.assets.bytype') }}',
+        headers: {
+            "X-Requested-With": 'XMLHttpRequest',
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+        },
+        dataType: 'json',
+        success: function (data) {
+            let myPieChart = new Chart(ctx,{
+                type   : 'pie',
+                data   : data,
+                options: pieOptions
+            });
+        },
+        error: function (data) {
+            // window.location.reload(true);
+        },
+    });
+      let last = document.getElementById(id).clientWidth;
+      addEventListener('resize', function() {
+      let current = document.getElementById(id).clientWidth;
+      if (current != last) location.reload();
+      last = current;
+    });
+  }
+
+  function hslToHex(h, s, l) {
+    s /= 100;
+    l /= 100;
+
+    let c = (1 - Math.abs(2 * l - 1)) * s;
+    let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    let m = l - c / 2;
+    let r = 0, g = 0, b = 0;
+
+    if (0 <= h && h < 60) {
+        r = c; g = x; b = 0;
+    } else if (60 <= h && h < 120) {
+        r = x; g = c; b = 0;
+    } else if (120 <= h && h < 180) {
+        r = 0; g = c; b = x;
+    } else if (180 <= h && h < 240) {
+        r = 0; g = x; b = c;
+    } else if (240 <= h && h < 300) {
+        r = x; g = 0; b = c;
+    } else if (300 <= h && h < 360) {
+        r = c; g = 0; b = x;
+    }
+
+    r = Math.round((r + m) * 255);
+    g = Math.round((g + m) * 255);
+    b = Math.round((b + m) * 255);
+
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+}
+
+  function generateColors(count) {
+    const colors = [];
+    const step = Math.floor(360 / count); // Determine the step size for the hue
+
+    for (let i = 0; i < count; i++) {
+        const hue = i * step;
+        const color = `hsl(${hue}, 100%, 50%)`;
+        colors.push(color);
+    }
+
+    return colors;
+}
+
+  function generateAcronym(phrase) {
+    if(typeof phrase !== "string") {
+      return phrase;
+    }
+
+    const words = phrase.split(' ');
+
+    if (words.length === 1) {
+        // If there's only one word, return it in uppercase
+        return phrase
+    }
+    else {
+        // If there are multiple words, generate an acronym
+        return words
+            .map(word => {
+              if(word[0])
+                return word[0].toUpperCase()
+            }).join('');
+    }
+
+
+    return phrase
+  }
+
+
 </script>
 @endpush
