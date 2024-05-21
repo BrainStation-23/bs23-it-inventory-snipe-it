@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'Susieta su',
     'checkout'   		=> 'Priimta/išduota',
-    'deleted_at'        => 'Deleted at',
     'id'      			=> 'ID',
     'license_email'   	=> 'Licenzijos el. paštas',
     'license_name'   	=> 'Licenzija išduota',

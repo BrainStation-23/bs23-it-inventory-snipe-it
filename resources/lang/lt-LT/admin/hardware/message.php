@@ -4,11 +4,8 @@ return [
 
     'undeployable' 		=> '<strong>Dėmesio: </strong> Ši įranga pažymėta kaip negalima naudoti. Jei būklė  pasikeitė, prašome atnaujinti įrangos būklę.',
     'does_not_exist' 	=> 'Tokios įrangos nėra.',
-    'does_not_exist_var'=> 'Asset with tag :asset_tag not found.',
-    'no_tag' 	        => 'No asset tag provided.',
     'does_not_exist_or_not_requestable' => 'Tokios įrangos nėra arba jos negalima užklausti.',
     'assoc_users'	 	=> 'Ši įranga šiuo metu yra išduota naudotojui ir negali būti ištrinta. Prašome pirmiausia patikrinkite įrangą, tuomet bandykite ištrinti vėl. ',
-    'warning_audit_date_mismatch' 	=> 'This asset\'s next audit date (:next_audit_date) is before the last audit date (:last_audit_date). Please update the next audit date.',
 
     'create' => [
         'error'   		=> 'Įrangos sukurti nepavyko, prašome bandykite dar kartą. :(',
@@ -19,7 +16,6 @@ return [
     'update' => [
         'error'   			=> 'Įrangos atnaujinti nepavyko, prašome bandykite dar kartą',
         'success' 			=> 'Įranga sėkmingai atnaujinta.',
-        'encrypted_warning' => 'Asset updated successfully, but encrypted custom fields were not due to permissions',
         'nothing_updated'	=>  'Nei vienas laukelis nepasirinktas, tad niekas nebuvo atnaujinta.',
         'no_assets_selected'  =>  'Nebuvo pasirinkta jokio turto, taigi niekas nebuvo pakeistas.',
         'assets_do_not_exist_or_are_invalid' => 'Selected assets cannot be updated.',
@@ -33,7 +29,7 @@ return [
     ],
 
     'audit' => [
-        'error'   		=> 'Asset audit unsuccessful: :error ',
+        'error'   		=> 'Turto auditas buvo nesėkmingas. Prašau, pabandykite dar kartą.',
         'success' 		=> 'Turto auditas sėkmingai registruotas.',
     ],
 

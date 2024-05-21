@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'Tildelt til',
     'checkout'   		=> 'Inne/ute',
-    'deleted_at'        => 'Slettet ved',
     'id'      			=> 'ID',
     'license_email'   	=> 'Lisens e-post',
     'license_name'   	=> 'Lisensiert til',

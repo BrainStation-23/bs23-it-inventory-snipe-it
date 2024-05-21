@@ -164,17 +164,12 @@
 
               {!! $errors->first('next_audit_date', '<span class="alert-msg" aria-hidden="true">
                 <i class="fas fa-times" aria-hidden="true"></i> :message</span>') !!}
-
-
             </div>
             <div class="col-md-5">
               <label class="form-control">
                 {{ Form::checkbox('null_next_audit_date', '1', false) }}
                 {{ trans_choice('general.set_to_null', count($assets), ['asset_count' => count($assets)]) }}
               </label>
-            </div>
-            <div class="col-md-8 col-md-offset-3">
-              <p class="help-block">{!! trans('general.next_audit_date_help') !!}</p>
             </div>
           </div>
 
@@ -201,8 +196,8 @@
 
           @include("models/custom_fields_form_bulk_edit",["models" => $models])
 
-          @foreach($assets as $asset)
-            <input type="hidden" name="ids[]" value="{{ $asset }}">
+          @foreach ($assets as $key => $value)
+            <input type="hidden" name="ids[{{ $value }}]" value="1">
           @endforeach
         </div> <!--/.box-body-->
 

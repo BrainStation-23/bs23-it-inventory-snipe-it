@@ -64,15 +64,6 @@
                             </label>
 
                         </div>
-                        <div class="col-md-12">
-                            <br>
-                            <div class="col-md-12" style="display:block;">
-                                <label id="note_label" for="note" style="text-align:center;" >{{trans('admin/settings/general.acceptance_note')}}</label>
-                            </div>
-                            <div class="col-md-12">
-                                <textarea id="note" name="note" rows="4" cols="50" value="note" style="width:100%" ></textarea>
-                            </div>
-                        </div>
 
                         @if ($snipeSettings->require_accept_signature=='1')
                             <div class="col-md-12">
@@ -141,7 +132,6 @@
                 $('#signature_output').val(signaturePad.toDataURL());
             }
         });
-
 
     </script>
 @stop

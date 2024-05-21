@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'Томилогдсон',
     'checkout'   		=> 'Гадуур нь',
-    'deleted_at'        => 'Deleted at',
     'id'      			=> 'ID',
     'license_email'   	=> 'Лицензийн и-мэйл',
     'license_name'   	=> 'Лицензтэй байна',

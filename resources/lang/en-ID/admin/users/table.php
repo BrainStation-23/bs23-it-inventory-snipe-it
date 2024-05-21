@@ -20,7 +20,6 @@ return array(
     'lock_passwords'		=> 'Rincian masuk tidak dapat diubah pada instalasi ini.',
     'manager' 				=> 'Manajer',
     'managed_locations'     => 'Lokasi yang Dikelola',
-    'managed_users'         => 'Managed Users',
     'name' 					=> 'Nama',
     'nogroup'               => 'No groups have been created yet. To add one, visit: ',
     'notes'                 => 'Catatan',

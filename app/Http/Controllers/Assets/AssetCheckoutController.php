@@ -62,7 +62,7 @@ class AssetCheckoutController extends Controller
             $this->authorize('checkout', $asset);
             $admin = Auth::user();
 
-            $target = $this->determineCheckoutTarget();
+            $target = $this->determineCheckoutTarget($asset);
 
             $asset = $this->updateAssetLocation($asset, $target);
 

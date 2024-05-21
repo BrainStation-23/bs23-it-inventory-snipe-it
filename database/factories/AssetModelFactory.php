@@ -439,13 +439,4 @@ class AssetModelFactory extends Factory
             ];
         });
     }
-
-    public function hasMultipleCustomFields(array $fields = null)
-    {
-        return $this->state(function () use ($fields) {
-            return [
-                'fieldset_id' => CustomFieldset::factory()->hasMultipleCustomFields($fields),
-            ];
-        });
-    }
 }

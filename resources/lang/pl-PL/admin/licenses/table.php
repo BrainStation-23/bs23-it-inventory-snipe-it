@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'Przypisane do',
     'checkout'   		=> 'Wejście/Wyjście',
-    'deleted_at'        => 'Usunięto o',
     'id'      			=> 'Id',
     'license_email'   	=> 'Licencja E-mail',
     'license_name'   	=> 'Licencja przypisana do',

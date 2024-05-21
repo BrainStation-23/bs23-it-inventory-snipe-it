@@ -4,11 +4,8 @@ return [
 
     'undeployable' 		=> '<strong>Advertencia:</strong> este activo ha sido marcado actualmente como no enviable.                         Si este estado cambia, por favor actualiza el estado de activos.',
     'does_not_exist' 	=> 'El activo no existe.',
-    'does_not_exist_var'=> 'Asset with tag :asset_tag not found.',
-    'no_tag' 	        => 'No asset tag provided.',
     'does_not_exist_or_not_requestable' => 'Ese activo no existe o no es solicitable.',
     'assoc_users'	 	=> 'Este activo está actualmente asignado a un usuario y no puede ser borrado. Por favor, revisa el activo primero y luego intenta borrarlo. ',
-    'warning_audit_date_mismatch' 	=> 'This asset\'s next audit date (:next_audit_date) is before the last audit date (:last_audit_date). Please update the next audit date.',
 
     'create' => [
         'error'   		=> 'El activo no ha sido creado, por favor, inténtelo de nuevo. :(',
@@ -19,7 +16,6 @@ return [
     'update' => [
         'error'   			=> 'Activo no ha sido actualizado, por favor, inténtelo de nuevo',
         'success' 			=> 'Activo actualizado con éxito.',
-        'encrypted_warning' => 'Activo actualizado con éxito, pero los campos personalizados cifrados no se debieron a permisos',
         'nothing_updated'	=>  'Ningún campo fue seleccionado, así que nada se actualizó.',
         'no_assets_selected'  =>  'Ningún recurso fue seleccionado, por lo que no se actualizó nada.',
         'assets_do_not_exist_or_are_invalid' => 'Los activos seleccionados no se pueden actualizar.',
@@ -33,7 +29,7 @@ return [
     ],
 
     'audit' => [
-        'error'   		=> 'Asset audit unsuccessful: :error ',
+        'error'   		=> 'La auditoria de activo no tuvo éxito. Inténtalo de nuevo.',
         'success' 		=> 'Audoría de activo registrada con éxito.',
     ],
 

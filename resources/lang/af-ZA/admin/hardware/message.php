@@ -4,11 +4,8 @@ return [
 
     'undeployable' 		=> '<strong>Waarskuwing: </strong> Hierdie bate is gemerk as tans onbruikbaar. As hierdie status verander het, verander asseblief die batestatus.',
     'does_not_exist' 	=> 'Bate bestaan ​​nie.',
-    'does_not_exist_var'=> 'Asset with tag :asset_tag not found.',
-    'no_tag' 	        => 'No asset tag provided.',
     'does_not_exist_or_not_requestable' => 'That asset does not exist or is not requestable.',
     'assoc_users'	 	=> 'Hierdie bate word tans na \'n gebruiker nagegaan en kan nie uitgevee word nie. Gaan asseblief die bate eers in, en probeer dan weer uitvee.',
-    'warning_audit_date_mismatch' 	=> 'This asset\'s next audit date (:next_audit_date) is before the last audit date (:last_audit_date). Please update the next audit date.',
 
     'create' => [
         'error'   		=> 'Bate is nie geskep nie, probeer asseblief weer. :(',
@@ -19,7 +16,6 @@ return [
     'update' => [
         'error'   			=> 'Bate is nie opgedateer nie, probeer asseblief weer',
         'success' 			=> 'Bate is suksesvol opgedateer.',
-        'encrypted_warning' => 'Asset updated successfully, but encrypted custom fields were not due to permissions',
         'nothing_updated'	=>  'Geen velde is gekies nie, dus niks is opgedateer nie.',
         'no_assets_selected'  =>  'No assets were selected, so nothing was updated.',
         'assets_do_not_exist_or_are_invalid' => 'Selected assets cannot be updated.',
@@ -33,7 +29,7 @@ return [
     ],
 
     'audit' => [
-        'error'   		=> 'Asset audit unsuccessful: :error ',
+        'error'   		=> 'Bate-oudit was onsuksesvol. Probeer asseblief weer.',
         'success' 		=> 'Bate oudit suksesvol aangemeld.',
     ],
 

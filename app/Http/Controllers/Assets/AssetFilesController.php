@@ -70,6 +70,7 @@ class AssetFilesController extends Controller
             }
 
             $file = 'private_uploads/assets/'.$log->filename;
+            \Log::debug('Checking for '.$file);
 
             if ($log->action_type == 'audit') {
                 $file = 'private_uploads/audits/'.$log->filename;

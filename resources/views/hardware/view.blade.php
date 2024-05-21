@@ -19,23 +19,6 @@
             </div>
         @endif
 
-        @if ($asset->checkInvalidNextAuditDate())
-            <div class="col-md-12">
-                <div class="callout callout-warning">
-                    <p><strong>{{ trans('general.warning',
-                        [
-                            'warning' => trans('admin/hardware/message.warning_audit_date_mismatch',
-                                    [
-                                        'last_audit_date' => Helper::getFormattedDateObject($asset->last_audit_date, 'date', false),
-                                        'next_audit_date' => Helper::getFormattedDateObject($asset->next_audit_date, 'date', false)
-                                    ]
-                                    )
-                        ]
-                        ) }}</strong></p>
-                </div>
-            </div>
-        @endif
-
         @if ($asset->deleted_at!='')
             <div class="col-md-12">
                 <div class="alert alert-danger">
@@ -254,8 +237,7 @@
                                                 </strong>
                                             </div>
                                             <div class="col-md-6">
-                                                {!! $asset->checkInvalidNextAuditDate() ? '<i class="fas fa-exclamation-triangle text-orange" aria-hidden="true"></i>' : '' !!}
-                                                {{ Helper::getFormattedDateObject($audit_log->created_at, 'date', false) }}
+                                                {{ \App\Helpers\Helper::getFormattedDateObject($audit_log->created_at, 'date', false) }}
                                                 @if ($audit_log->user)
                                                     (by {{ link_to_route('users.show', $audit_log->user->present()->fullname(), [$audit_log->user->id]) }})
                                                 @endif
@@ -272,7 +254,6 @@
                                                 </strong>
                                             </div>
                                             <div class="col-md-6">
-                                                {!! $asset->checkInvalidNextAuditDate() ? '<i class="fas fa-exclamation-triangle text-orange" aria-hidden="true"></i>' : '' !!}
                                                 {{ Helper::getFormattedDateObject($asset->next_audit_date, 'date', false) }}
                                             </div>
                                         </div>

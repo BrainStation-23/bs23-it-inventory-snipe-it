@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'Desemnata catre',
     'checkout'   		=> 'Predat/Primit',
-    'deleted_at'        => 'Șters la',
     'id'      			=> 'ID',
     'license_email'   	=> 'E-mail licenta',
     'license_name'   	=> 'Licentiat catre',

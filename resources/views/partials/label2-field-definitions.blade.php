@@ -209,9 +209,7 @@
                     array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
                 },
 
-                get valueString() {
-                    return this.getCombinedString(this.fields);
-                },
+                get valueString() { return this.toString(this.fields); },
                 onTest: function(a) {
                     console.log('test', a);
                 },
@@ -231,7 +229,7 @@
                                 })
                         }));
                 },
-                getCombinedString: function (fields) {
+                toString: function(fields) {
                     return fields
                         .map(field => field.options
                             .map(option => option.label + '=' + option.datasource)

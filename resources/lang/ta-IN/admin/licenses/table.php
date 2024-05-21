@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'ஒதுக்கப்படும்',
     'checkout'   		=> 'உள்ளே வெளியே',
-    'deleted_at'        => 'Deleted at',
     'id'      			=> 'ஐடி',
     'license_email'   	=> 'உரிமம் மின்னஞ்சல்',
     'license_name'   	=> 'உரிமம் பெற்றது',

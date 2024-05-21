@@ -221,7 +221,7 @@ class UserPresenter extends Presenter
                 'switchable' => true,
                 'escape' => true,
                 'class' => 'css-barcode',
-                'title' => trans('general.assets'),
+                'title' => 'Assets',
                 'visible' => true,
             ],
             [
@@ -230,7 +230,7 @@ class UserPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'class' => 'css-license',
-                'title' => trans('general.licenses'),
+                'title' => 'License',
                 'visible' => true,
             ],
             [
@@ -239,7 +239,7 @@ class UserPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'class' => 'css-consumable',
-                'title' => trans('general.consumables'),
+                'title' => 'Consumables',
                 'visible' => true,
             ],
             [
@@ -248,25 +248,7 @@ class UserPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'class' => 'css-accessory',
-                'title' => trans('general.accessories'),
-                'visible' => true,
-            ],
-            [
-                'field' => 'manages_users_count',
-                'searchable' => false,
-                'sortable' => true,
-                'switchable' => true,
-                'class' => 'css-users',
-                'title' => trans('admin/users/table.managed_users'),
-                'visible' => true,
-            ],
-            [
-                'field' => 'manages_locations_count',
-                'searchable' => false,
-                'sortable' => true,
-                'switchable' => true,
-                'class' => 'css-location',
-                'title' => trans('admin/users/table.managed_locations'),
+                'title' => 'Accessories',
                 'visible' => true,
             ],
             [

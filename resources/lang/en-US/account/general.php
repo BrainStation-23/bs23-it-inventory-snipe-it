@@ -9,5 +9,4 @@ return array(
     'api_token_expiration_time' => 'API tokens are set to expire in:',
     'api_reference' => 'Please check the <a href="https://snipe-it.readme.io/reference" target="_blank">API reference</a> to
                     find specific API endpoints and additional API documentation.',
-    'profile_updated' => 'Account successfully updated',
 );

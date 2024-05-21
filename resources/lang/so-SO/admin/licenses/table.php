@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'Loo xilsaaray',
     'checkout'   		=> 'Gudaha/kabaxsan',
-    'deleted_at'        => 'Deleted at',
     'id'      			=> 'Aqoonsi',
     'license_email'   	=> 'Iimayl shatiga',
     'license_name'   	=> 'Ruqsad u haysta',

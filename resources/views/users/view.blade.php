@@ -89,9 +89,9 @@
           </a>
         </li>
 
-        @if ($user->managedLocations->count() >= 0 )
+        @if ($user->managedLocations()->count() >= 0 )
         <li>
-          <a href="#managed-locations" data-toggle="tab">
+          <a href="#managed" data-toggle="tab">
             <span class="hidden-lg hidden-md">
               <i class="fas fa-map-marker-alt fa-2x"></i></span>
             <span class="hidden-xs hidden-sm">{{ trans('admin/users/table.managed_locations') }}
@@ -100,19 +100,7 @@
         </li>
         @endif
 
-          @if ($user->managesUsers->count() >= 0 )
-              <li>
-                  <a href="#managed-users" data-toggle="tab">
-            <span class="hidden-lg hidden-md">
-              <i class="fa-solid fa-users fa-2x"></i></span>
-                      <span class="hidden-xs hidden-sm">{{ trans('admin/users/table.managed_users') }}
-                      {!! ($user->managesUsers->count() > 0 ) ? '<badge class="badge badge-secondary">'.number_format($user->managesUsers->count()).'</badge>' : '' !!}
-                  </a>
-              </li>
-          @endif
-
-
-      @can('update', $user)
+        @can('update', $user)
           <li class="dropdown pull-right">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
               <span class="hidden-xs"><i class="fas fa-cog" aria-hidden="true"></i></span>
@@ -126,7 +114,7 @@
             <ul class="dropdown-menu">
               <li><a href="{{ route('users.edit', $user->id) }}">{{ trans('admin/users/general.edit') }}</a></li>
               <li><a href="{{ route('users.clone.show', $user->id) }}">{{ trans('admin/users/general.clone') }}</a></li>
-              @if ((Auth::user()->id !== $user->id) && (!config('app.lock_passwords')) && ($user->deleted_at=='') && ($user->isDeletable()))
+              @if ((Auth::user()->id !== $user->id) && (!config('app.lock_passwords')) && ($user->deleted_at==''))
                 <li><a href="{{ route('users.destroy', $user->id) }}">{{ trans('button.delete') }}</a></li>
               @endif
             </ul>
@@ -233,15 +221,11 @@
                 @can('delete', $user)
                   @if ($user->deleted_at=='')
                     <div class="col-md-12" style="padding-top: 30px;">
-                        @if ($user->isDeletable())
-                          <form action="{{route('users.destroy',$user->id)}}" method="POST">
-                            {{csrf_field()}}
-                            {{ method_field("DELETE")}}
-                            <button style="width: 100%;" class="btn btn-sm btn-warning hidden-print">{{ trans('button.delete')}}</button>
-                          </form>
-                            @else
-                            <button style="width: 100%;" class="btn btn-sm btn-warning hidden-print disabled">{{ trans('button.delete')}}</button>
-                        @endif
+                      <form action="{{route('users.destroy',$user->id)}}" method="POST">
+                        {{csrf_field()}}
+                        {{ method_field("DELETE")}}
+                        <button style="width: 100%;" class="btn btn-sm btn-warning hidden-print">{{ trans('button.delete')}}</button>
+                      </form>
                     </div>
                     <div class="col-md-12" style="padding-top: 5px;">
                       <form action="{{ route('users/bulkedit') }}" method="POST">
@@ -1030,7 +1014,7 @@
           </div>
         </div><!-- /.tab-pane -->
 
-        <div class="tab-pane" id="managed-locations">
+        <div class="tab-pane" id="managed">
 
             @include('partials.locations-bulk-actions')
 
@@ -1060,39 +1044,6 @@
               "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
               }'>
             </table>
-
-          </div>
-
-          <div class="tab-pane" id="managed-users">
-
-              @include('partials.locations-bulk-actions')
-
-
-              <table
-                      data-columns="{{ \App\Presenters\UserPresenter::dataTableLayout() }}"
-                      data-cookie-id-table="managedUsersTable"
-                      data-click-to-select="true"
-                      data-pagination="true"
-                      data-id-table="managedUsersTable"
-                      data-toolbar="#usersBulkEditToolbar"
-                      data-bulk-button-id="#bulkUsersEditButton"
-                      data-bulk-form-id="#usersBulkForm"
-                      data-search="true"
-                      data-show-footer="true"
-                      data-side-pagination="server"
-                      data-show-columns="true"
-                      data-show-fullscreen="true"
-                      data-show-export="true"
-                      data-show-refresh="true"
-                      data-sort-order="asc"
-                      id="managedUsersTable"
-                      class="table table-striped snipe-table"
-                      data-url="{{ route('api.users.index', ['manager_id' => $user->id]) }}"
-                      data-export-options='{
-              "fileName": "export-users-{{ date('Y-m-d') }}",
-              "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
-              }'>
-              </table>
 
           </div>
         </div><!-- /consumables-tab -->

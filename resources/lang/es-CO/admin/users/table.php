@@ -20,7 +20,6 @@ return array(
     'lock_passwords'		=> 'Los detalles de inicio de sesión no pueden ser cambiados en esta instalación.',
     'manager' 				=> 'Jefe Inmediato',
     'managed_locations'     => 'Ubicaciones gestionadas',
-    'managed_users'         => 'Usuarios gestionados',
     'name' 					=> 'Nombre',
     'nogroup'               => 'Aún no se han creado grupos. Para añadir uno, visite: ',
     'notes'                 => 'Notas',

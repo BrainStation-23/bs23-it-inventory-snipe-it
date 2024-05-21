@@ -4,7 +4,6 @@ return array(
 
     'assigned_to'   	=> 'Предоставен на',
     'checkout'   		=> 'Предоставяне',
-    'deleted_at'        => 'Изтрито в',
     'id'      			=> 'ID',
     'license_email'   	=> 'Лицензиран на Email',
     'license_name'   	=> 'Лицензиран на',
