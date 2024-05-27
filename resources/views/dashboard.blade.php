@@ -576,6 +576,31 @@
             </div>
           </div>
         </div>
+        <!-- Asets By Category In Locations Graph -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="box box-default">
+              <div class="box-header with-border">
+                <h2 class="box-title">Assets By Categories In Locations</h2>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse" aria-hidden="true">
+                    <i class="fas fa-minus" aria-hidden="true"></i>
+                    <span class="sr-only">{{trans('general.collapse')}}</span>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="chart-responsive">
+                      <canvas id="categoriesInLocationsBarChart" style="height:"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Asets By Models In Locations Graph -->
         <div class="row">
           <div class="col-md-12">
@@ -601,7 +626,7 @@
             </div>
           </div>
         </div>
-        <!-- Models & Location -->
+        <!-- Models & Location Table -->
         <div class="row">
           <div class="col-md-12">
             <div class="box box-default">
@@ -651,9 +676,10 @@
       url: '{{ route('api.assets.custom.tailored') }}',
       headers: { "X-Requested-With": 'XMLHttpRequest', "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')},
       success: function (data) {
-        try { generateCategoryStatusDataTables("categoryStatusDataTable", data) }     catch (e) {console.log(e); console.log("generateCategoryStatusDataTables")}
-        try { generateModelsInLocationsBarChart("modelsInLocationsBarChart", data) }  catch (e) {console.log(e); console.log("generateModelsInLocationsBarChart")}
-        try { generatePurchasesByDatesGraph('purchasesByDatesGraph', data) }          catch (e) {console.log(e); console.log("generatePurchasesByDatesGraph")}
+        try { generateCategoryStatusDataTables("categoryStatusDataTable", data) }             catch (e) {console.log(e); console.log("generateCategoryStatusDataTables")}
+        try { generateCategoriesInLocationsBarChart("categoriesInLocationsBarChart", data) }  catch (e) {console.log(e); console.log("generateCategoriesInLocationsBarChart")}
+        try { generateModelsInLocationsBarChart("modelsInLocationsBarChart", data) }          catch (e) {console.log(e); console.log("generateModelsInLocationsBarChart")}
+        try { generatePurchasesByDatesGraph('purchasesByDatesGraph', data) }                  catch (e) {console.log(e); console.log("generatePurchasesByDatesGraph")}
       },
       error: function (data) {
         // window.location.reload(true);
@@ -838,6 +864,7 @@
           }),
           status: statusArr,
           backgroundColor: obj.backgroundColor,
+          hoverBackgroundColor: obj.backgroundColor,
           stack: `Stack 0`
         }
       })
@@ -858,7 +885,176 @@
         modelsColors: colorMap,
         datasets: [...datasets]
       }
-      // console.log(graphData);
+
+      return graphData
+    }
+
+    let graphData = buildDataset(data)
+    let myBarChart = new Chart(ctx,{
+      type   : 'bar',
+      data   : graphData,
+      options: barOptions(graphData)
+    });
+
+    let last = document.getElementById(id).clientWidth;
+    addEventListener('resize', function() {
+      let current = document.getElementById(id).clientWidth;
+      if (current != last) location.reload();
+      last = current;
+    });
+
+    /**
+     * Resizing Pie Chart matching the height of bar chart
+     */
+    // let divHeightPie = $('#statusPieChart').height();
+    // let divHeightBar = $('#statusStackedBarChart').height();
+    // $('#statusPieChart').css('margin-bottom', divHeightBar - divHeightPie);
+  }
+
+  function generateCategoriesInLocationsBarChart(id, data) {
+    let barChartCanvas = $(`#${id}`).get(0).getContext("2d");
+    let barChart = new Chart(barChartCanvas);
+    let ctx = document.getElementById(id);
+    let barOptions = (graphData => { return {
+      maintainAspectRatio: false,
+      aspectRatio: 0.5,
+      responsive: true,
+      layout: {
+        padding: {
+          top: 50,
+          bottom: 0,
+          left: 0,
+          right: 0
+        },
+      },
+      scales: {
+        xAxes: [{
+          display: true,
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Location'
+          }
+        }],
+        yAxes: [{
+          display: true,
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Asset Count'
+          },
+          ticks: {
+            // min: graphData.limits.min,
+            // max: graphData.limits.max,
+            stepSize: 50,
+          },
+          beforeBuildTicks: function(axis) {
+          }
+        }]
+      },
+      legend: {
+        display: false,
+        position: 'left',
+        responsive: true,
+        labels: {
+          generateLabels: function(chart) {
+            let data = chart.data;
+            if (Object.keys(data.categoriesColors).length && data.datasets.length) {
+              return Object.keys(data.categoriesColors).map(function(key) {
+                return {
+                  text: key,
+                  fillStyle: data.categoriesColors[key] || '#000',
+                };
+              });
+            }
+            return [];
+          },
+          font: {
+            size: 1, // Reduce the font size
+          },
+          boxWidth: 10, // Reduce the box width
+        }
+      },
+      tooltips: {
+        callbacks: {
+          label: function(tooltipItem, data) {
+            let dataset = data.datasets[tooltipItem.datasetIndex];
+            let location = data.labels[tooltipItem.index];
+            let categoryName = dataset.label;
+            let total = dataset.data[tooltipItem.index];
+            let status = dataset.status[location] // dataset.status[tooltipItem.index];
+            let statusArr = Object.keys(status).map((key) => ` ${key}: ${status[key]}`)
+
+            // console.log(location, modelName, total, status, tooltipItem.datasetIndex, data)
+
+            return `${categoryName} - ${location}: ${total} -${statusArr}`;
+          }
+        }
+      }
+    }});
+
+    function buildDataset(data) {
+      let colorMap = {};
+      let categories = data.category_names
+      let locations = data.location_names
+      let colors = generateColors(categories.length)
+      categories.forEach((category, index) => { colorMap[category] = colors[index];});
+
+      let datasets = categories.map((category, index) => {
+        let extraDataObj = {};
+
+        if(data.assets_by_category[category] && data.assets_by_category[category].locations) {
+          Object.keys(data.assets_by_category[category].locations).forEach(location => {
+            let target = data?.assets_by_category[category]?.locations[location]
+            extraDataObj[location] = target
+          })
+        }
+
+        return {
+          label: category,
+          extraData: extraDataObj,
+          backgroundColor: colorMap[category],
+          stack: `Stack ${index}`
+        }
+      }).map((obj, index) => {
+        let statusArr = {};
+        return {
+          barPercentage: 0.7,
+          barAspectRation: 0.2,
+          label: obj.label,
+          data: locations.map(location => {
+            if(obj.extraData.hasOwnProperty(location)) {
+              let categoryInLocation = obj.extraData[location]
+              statusArr[location] = {Total: categoryInLocation.count, ...categoryInLocation.status}
+              return categoryInLocation.count
+            } else {
+              return 0
+            }
+          }),
+          status: statusArr,
+          backgroundColor: obj.backgroundColor,
+          hoverBackgroundColor: obj.backgroundColor,
+          stack: `Stack 0`
+        }
+      })
+
+      let max = datasets.reduce((acc, row) => {
+        let rowMax = Math.max(...row.data);
+        return Math.max(acc, rowMax);
+      }, Number.NEGATIVE_INFINITY);
+
+      let min = datasets.reduce((acc, row) => {
+        let rowMax = Math.min(...row.data);
+        return Math.min(acc, rowMax);
+      }, Number.POSITIVE_INFINITY);
+
+      let graphData = {
+        limits: { max, min },
+        labels: locations,
+        categoriesColors: colorMap,
+        datasets: [...datasets]
+      }
+
       return graphData
     }
 
@@ -976,54 +1172,71 @@
     });
       let last = document.getElementById(id).clientWidth;
       addEventListener('resize', function() {
-      let current = document.getElementById(id).clientWidth;
-      if (current != last) location.reload();
-      last = current;
-    });
+        let current = document.getElementById(id).clientWidth;
+        if (current != last) location.reload();
+        last = current;
+      });
   }
 
-  function hslToHex(h, s, l) {
-    s /= 100;
-    l /= 100;
+//   function hslToHex(h, s, l) {
+//     s /= 100;
+//     l /= 100;
 
-    let c = (1 - Math.abs(2 * l - 1)) * s;
-    let x = c * (1 - Math.abs((h / 60) % 2 - 1));
-    let m = l - c / 2;
-    let r = 0, g = 0, b = 0;
+//     let c = (1 - Math.abs(2 * l - 1)) * s;
+//     let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+//     let m = l - c / 2;
+//     let r = 0, g = 0, b = 0;
 
-    if (0 <= h && h < 60) {
-        r = c; g = x; b = 0;
-    } else if (60 <= h && h < 120) {
-        r = x; g = c; b = 0;
-    } else if (120 <= h && h < 180) {
-        r = 0; g = c; b = x;
-    } else if (180 <= h && h < 240) {
-        r = 0; g = x; b = c;
-    } else if (240 <= h && h < 300) {
-        r = x; g = 0; b = c;
-    } else if (300 <= h && h < 360) {
-        r = c; g = 0; b = x;
-    }
+//     if (0 <= h && h < 60) {
+//         r = c; g = x; b = 0;
+//     } else if (60 <= h && h < 120) {
+//         r = x; g = c; b = 0;
+//     } else if (120 <= h && h < 180) {
+//         r = 0; g = c; b = x;
+//     } else if (180 <= h && h < 240) {
+//         r = 0; g = x; b = c;
+//     } else if (240 <= h && h < 300) {
+//         r = x; g = 0; b = c;
+//     } else if (300 <= h && h < 360) {
+//         r = c; g = 0; b = x;
+//     }
 
-    r = Math.round((r + m) * 255);
-    g = Math.round((g + m) * 255);
-    b = Math.round((b + m) * 255);
+//     r = Math.round((r + m) * 255);
+//     g = Math.round((g + m) * 255);
+//     b = Math.round((b + m) * 255);
 
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
-}
+//     return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+// }
+
+  // function generateColors(count) {
+  //   const colors = [];
+  //   const step = Math.floor(1440 / count); // Determine the step size for the hue
+
+  //   for (let i = 0; i < count; i++) {
+  //       const hue = i * step;
+  //       const color = `hsl(${hue}, 60%, 55%)`;
+  //       colors.push(color);
+  //   }
+
+  //   return colors;
+  // }
 
   function generateColors(count) {
     const colors = [];
-    const step = Math.floor(360 / count); // Determine the step size for the hue
+    const hueStep = 360 / count; // Step size for hue
+    const saturationValues = [60, 70, 80]; // Different saturation levels
+    const lightnessValues = [50, 60, 70]; // Different lightness levels
 
     for (let i = 0; i < count; i++) {
-        const hue = i * step;
-        const color = `hsl(${hue}, 100%, 50%)`;
+        const hue = (i * hueStep) % 360;
+        const saturation = saturationValues[i % saturationValues.length];
+        const lightness = lightnessValues[i % lightnessValues.length];
+        const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         colors.push(color);
     }
 
     return colors;
-}
+  }
 
   function generateAcronym(phrase) {
     if(typeof phrase !== "string") {

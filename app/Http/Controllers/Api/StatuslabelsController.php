@@ -373,6 +373,21 @@ class StatuslabelsController extends Controller
             ];
         });
 
+        $assetsByCategory = $assets->groupBy('model.category.name')->map(function ($assets) {
+            return [
+                'count' => $assets->count(),
+                'locations' => $assets->groupBy('location.name')->map(function ($assetByLocation) {
+                    return [
+                        'count' => $assetByLocation->count(),
+                        'status' => $assetByLocation->groupBy('assetstatus.name')->map(function ($assetByStatus) {
+                            return $assetByStatus->count();
+                        }),
+
+                    ];
+                }),
+            ];
+        });
+
         $assetsByLocation = $assets->groupBy('location.name')->map(function ($assets) {
             return [
                 'count' => $assets->count(),
@@ -428,6 +443,7 @@ class StatuslabelsController extends Controller
             'category_names' => $categoryNames,
             'assets_by_model' => $assetsByModel->toArray(),
             'assets_by_location' => $assetsByLocation->toArray(),
+            'assets_by_category' => $assetsByCategory->toArray(),
             'assets_by_purchase_date' => $assetPurchasesByDate->toArray(),
             // 'assets_by_status' => $assetsByStatus->toArray(),
         ];
