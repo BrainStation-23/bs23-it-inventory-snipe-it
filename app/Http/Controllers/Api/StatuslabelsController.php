@@ -8,6 +8,7 @@ use App\Http\Transformers\AssetsTransformer;
 use App\Http\Transformers\SelectlistTransformer;
 use App\Http\Transformers\StatuslabelsTransformer;
 use App\Models\Asset;
+use App\Models\Category;
 use App\Models\Statuslabel;
 use Illuminate\Http\Request;
 use App\Http\Transformers\PieChartTransformer;
@@ -351,14 +352,40 @@ class StatuslabelsController extends Controller
         }
 
         $assets = Asset::with(['assetstatus', 'location', 'model', 'model.category'])->orderBy('id', 'asc')->get();
+
         $modelNames =    $assets->groupBy('model.name')->keys()->all();
         $locationNames = $assets->groupBy('location.name')->keys()->all();
         $categoryNames = $assets->groupBy('model.category.name')->keys()->all();
+        $categoryNamesAll = Category::all()->pluck('name');
+
         $assetPurchasesByDate = Asset::select(\DB::raw('DATE(purchase_date) as date'), \DB::raw('count(*) as count'))
                                      ->where('purchase_date', '>=', \Carbon::now()->subMonths(3))
                                      ->groupBy('date')->orderBy('date', 'asc')->get();
 
+        $categoryPurchasesByDate = Asset::selectRaw('DATE(assets.purchase_date) as date, COUNT(*) as count, categories.name as category_name')
+                                    ->where('purchase_date', '>=', \Carbon::now()->subMonths(3))
+                                    ->join('models', 'assets.model_id', '=', 'models.id')
+                                    ->join('categories', 'models.category_id', '=', 'categories.id')
+                                    ->groupBy('date', 'category_name')
+                                    ->orderBy('date', 'asc')
+                                    ->get()->groupBy('date');
+
         $assetsByModel = $assets->groupBy('model.name')->map(function ($assets) {
+            return [
+                'count' => $assets->count(),
+                'locations' => $assets->groupBy('location.name')->map(function ($assetByLocation) {
+                    return [
+                        'count' => $assetByLocation->count(),
+                        'status' => $assetByLocation->groupBy('assetstatus.name')->map(function ($assetByStatus) {
+                            return $assetByStatus->count();
+                        }),
+
+                    ];
+                }),
+            ];
+        });
+
+        $assetsByCategory = $assets->groupBy('model.category.name')->map(function ($assets) {
             return [
                 'count' => $assets->count(),
                 'locations' => $assets->groupBy('location.name')->map(function ($assetByLocation) {
@@ -426,10 +453,12 @@ class StatuslabelsController extends Controller
             'model_names' => $modelNames,
             'location_names' => $locationNames,
             'category_names' => $categoryNames,
+            'category_names_all' => $categoryNamesAll,
             'assets_by_model' => $assetsByModel->toArray(),
             'assets_by_location' => $assetsByLocation->toArray(),
+            'assets_by_category' => $assetsByCategory->toArray(),
             'assets_by_purchase_date' => $assetPurchasesByDate->toArray(),
-            // 'assets_by_status' => $assetsByStatus->toArray(),
+            'category_by_purchases_date' => $categoryPurchasesByDate->toArray()
         ];
     }
 }
